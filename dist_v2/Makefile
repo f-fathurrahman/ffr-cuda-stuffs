@@ -1,0 +1,23 @@
+NVCC = nvcc
+NVCC_FLAGS = -g -G -Xcompiler -Wall
+
+all: main.exe
+
+main.exe: main.o aux_functions.o
+	$(NVCC) $^ -o $@
+
+main.o: main.cpp aux_functions.h
+	$(NVCC) $(NVCC_FLAGS) -c $< -o $@
+
+aux_functions.o: aux_functions.cpp aux_functions.h
+	$(NVCC) $(NVCC_FLAGS) -c $< -o $@
+
+main_gpu.exe: main_gpu.o kernel.o
+	$(NVCC) $^ -o $@
+
+kernel.o: kernel.cu kernel.h
+	$(NVCC) $(NVCC_FLAGS) -c $< -o $@
+
+clean:
+	rm -vf *.o *.exe
+
