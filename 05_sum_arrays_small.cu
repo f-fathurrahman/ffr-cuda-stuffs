@@ -25,16 +25,17 @@ __global__ void sum_arrays_on_gpu( float *A, float *B, float *C )
     C[i] = A[i] + B[i];
 }
 
-void check_result( const int N, float *hostRef, float *gpuRef )
+int check_result( const int N, float *hostRef, float *gpuRef )
 {
     double epsilon = 1e-8;
     for( int i = 0; i < N; i++ ) {
         if( abs(hostRef[i] - gpuRef[i]) > epsilon ) {
             printf("Arrays do not match!\n");
-            printf("i = %3d , host = %5.2f , device = %5.2f at current %d\n", i, hostRef[i], gpuRef[i]);
-            break;
+            printf("i = %3d , host = %5.2f , device = %5.2f\n", i, hostRef[i], gpuRef[i]);
+            return -1;
         }
     }
+    return 0;
 }
 
 
@@ -46,7 +47,7 @@ int main( int argc, char** argv )
     int dev = 0;
     cudaSetDevice(dev);
 
-    int Ndata = 32;
+    int Ndata = 33;
 
     // host memory
     size_t Nbytes = Ndata*sizeof(float);
@@ -88,7 +89,10 @@ int main( int argc, char** argv )
 
     cudaMemcpy( gpuRef, d_C, Nbytes, cudaMemcpyDeviceToHost );
 
-    check_result( Ndata, hostRef, gpuRef );
+    int err = check_result( Ndata, hostRef, gpuRef );
+    if( err == 0 ) {
+        printf("Test passed\n");
+    }
 
     cudaFree( d_A );
     cudaFree( d_B );
