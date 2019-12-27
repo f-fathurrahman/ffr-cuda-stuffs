@@ -61,7 +61,8 @@ int main( int argc, char** argv )
     printf("Using Device %d: %s\n", dev, deviceProp.name);
     cudaSetDevice( dev );
 
-    int Ndata = 100000;
+    //int Ndata = 100000;
+    int Ndata = 1<<24;
     double t_start, t_stop;
     double t_cpu, t_gpu;
 
