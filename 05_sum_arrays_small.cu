@@ -1,31 +1,31 @@
 #include <stdio.h>
 #include <cuda_runtime.h>
 
-void sum_arrays_on_host( const int N, float *A, float *B, float *C )
+void sum_arrays_on_host( const int N, double *A, double *B, double *C )
 {
     for( int idx = 0; idx < N; idx++ ) {
         C[idx] = A[idx] + B[idx];
     }
 }
 
-void initial_data( int Ndata, float *dat )
+void initial_data( int Ndata, double *dat )
 {
     // Generate different seed for random number
     time_t t;
     srand( (unsigned int) time(&t) );
 
     for( int i = 0; i < Ndata; i++ ) {
-        dat[i] = (float)( rand() & 0xFF )/10.0f;
+        dat[i] = (double)( rand() & 0xFF )/10.0f;
     }
 }
 
-__global__ void sum_arrays_on_gpu( float *A, float *B, float *C )
+__global__ void sum_arrays_on_gpu( double *A, double *B, double *C )
 {
     int i = threadIdx.x;
     C[i] = A[i] + B[i];
 }
 
-int check_result( const int N, float *hostRef, float *gpuRef )
+int check_result( const int N, double *hostRef, double *gpuRef )
 {
     double epsilon = 1e-8;
     for( int i = 0; i < N; i++ ) {
@@ -50,14 +50,14 @@ int main( int argc, char** argv )
     int Ndata = 33;
 
     // host memory
-    size_t Nbytes = Ndata*sizeof(float);
+    size_t Nbytes = Ndata*sizeof(double);
 
-    float *h_A, *h_B, *hostRef, *gpuRef;
+    double *h_A, *h_B, *hostRef, *gpuRef;
 
-    h_A     = (float*) malloc(Nbytes); 
-    h_B     = (float*) malloc(Nbytes); 
-    hostRef = (float*) malloc(Nbytes);
-    gpuRef  = (float*) malloc(Nbytes);
+    h_A     = (double*) malloc(Nbytes); 
+    h_B     = (double*) malloc(Nbytes); 
+    hostRef = (double*) malloc(Nbytes);
+    gpuRef  = (double*) malloc(Nbytes);
 
     // Initialize data at host side
     initial_data( Ndata, h_A );
@@ -67,10 +67,10 @@ int main( int argc, char** argv )
     memset( gpuRef, 0, Nbytes );
 
     // Initialize device memory
-    float *d_A, *d_B, *d_C;
-    cudaMalloc( (float**)&d_A, Nbytes );
-    cudaMalloc( (float**)&d_B, Nbytes );
-    cudaMalloc( (float**)&d_C, Nbytes );
+    double *d_A, *d_B, *d_C;
+    cudaMalloc( (double**)&d_A, Nbytes );
+    cudaMalloc( (double**)&d_B, Nbytes );
+    cudaMalloc( (double**)&d_C, Nbytes );
 
     // transfer data
     cudaMemcpy( d_A, h_A, Nbytes, cudaMemcpyHostToDevice );
